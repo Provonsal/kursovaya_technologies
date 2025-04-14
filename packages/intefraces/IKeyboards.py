@@ -15,6 +15,14 @@ class IReplyKeyboard(Protocol):
     def Keyboard(self, keyboard: ReplyKeyboardMarkup):
         ...
     
+    @property
+    def ButtonsCollection(self) -> Iterable[KeyboardButton]:
+        ...
+    
+    @ButtonsCollection.setter
+    def ButtonsCollection(self, buttonCollection: Iterable[KeyboardButton]) -> None:
+        ...
+    
     # operator +=
     def __iadd__(self, buttons: Iterable[KeyboardButton] | KeyboardButton) -> "IReplyKeyboard":
         ...
@@ -41,6 +49,14 @@ class IInlineKeyboard(Protocol):
         
     @Keyboard.setter
     def Keyboard(self, keyboard: InlineKeyboardMarkup):
+        ...
+    
+    @property
+    def ButtonsCollection(self) -> Iterable[KeyboardButton]:
+        ...
+    
+    @ButtonsCollection.setter
+    def ButtonsCollection(self, buttonCollection: Iterable[KeyboardButton]) -> None:
         ...
     
     # operator +=

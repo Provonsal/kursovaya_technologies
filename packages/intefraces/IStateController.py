@@ -1,8 +1,9 @@
-from typing import Protocol, Union
+from typing import Protocol, Union, runtime_checkable
 from telebot.states import State
 
 from telebot.states.asyncio.context import StateContext
 
+@runtime_checkable
 class IStateController(Protocol):
     
     _context_state: StateContext
