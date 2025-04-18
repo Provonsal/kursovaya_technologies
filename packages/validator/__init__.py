@@ -1,13 +1,19 @@
 from functools import wraps
-from types import UnionType
+from types import NoneType, UnionType
 from typing import Any, Callable, Iterable, Mapping
+from warnings import warn
         
 
 class FieldValidator:
-    def __init__(self, fieldName: str, annotationType: type | UnionType | None = None) -> None:
-        self._fieldName: str = fieldName
-        self._annotationType: type | UnionType | None = annotationType
+    def __init__(
+        self, 
+        fieldName: str, 
+        annotationType: type | UnionType | None = None
+    ) -> None:
         
+        self._fieldName: str = fieldName if isinstance(fieldName, Iterable) else (fieldName)
+        self._annotationType = annotationType       
+         
     def _create_annotations(self, cls) -> bool:
         
         all_annotations = getattr(cls, "__annotations__", None)
@@ -18,52 +24,54 @@ class FieldValidator:
             return True
         return False
     
-    def _set_annotation_to_class(self, cls, attrName) -> None:
-        # Если в параметрах указана аннотация то смотрим
-        if self._annotationType is not None:
+    def _set_annotation_to_class(self, cls, annotation: type | UnionType) -> None:
+        try:
             
             # берем все существующие аннотации
-            all_annotations = getattr(cls, "__annotations__", None)
-
-            # если аннотации уже существуют
-            if all_annotations is not None:
-                # и аннотация к атрибуту не прописана в классе то записываем свою
-                if all_annotations.get(attrName) is None or (all_annotations.get(attrName) == self._annotationType):
-                    cls.__annotations__[attrName] = self._annotationType
-                # если существует аннотация к атрибуту и в параметрах тоже передана аннотация то поднимаем ошибку  
-                else:
-                    raise Exception("Annotation overload")
-            # если аннотаций не существует то поднимаем ошибку
-            else:
-                raise Exception("Annotations not found")
+            class_annotations: dict = getattr(cls, "__annotations__")
+            assert class_annotations[self._fieldName] == annotation or class_annotations.get(self._fieldName) is None
+            cls.__annotations__[self._fieldName] = annotation
             
-        else:
-            return
+        except AttributeError:
+            raise Exception("Annotations not found")    
+        except AssertionError:
+            raise Exception("Annotation overload")
+        except KeyError:
+            cls.__annotations__[self._fieldName] = annotation
     
-    def _get_annotation(self, cls, attrName) -> type | UnionType:
-        
-        # берем все существующие аннотации
-        all_annotations: dict[str, type] | None = getattr(cls, "__annotations__", None)
-        
-        if all_annotations is not None:
-            
-            attr_annotation: type | None = all_annotations.get(attrName)
-            
-            # смотрим если нет аннотации к типу
-            if attr_annotation is None:
-                # и в параметрах не указана аннотация то поднимаем ошибку
-                if self._annotationType is None:
-                    raise Exception("Field annotation not found")
-                # если указано то возвращаем указанную в параметрах аннотацию
-                else:
-                    return self._annotationType
-            # если аннотация есть изначально то ее и возвращаем
-            else:
-                return attr_annotation
-        else:
-            raise Exception("Annotations not found")
+    def _get_field_annotation(self, cls, func: Callable) -> type | UnionType:
+        try:
+            # Пытаемся взять все существующие аннотации класса
+            annotations: Mapping[str, type] = getattr(cls, "__annotations__")
+            assert annotations.get(self._fieldName) is not None
+            return annotations[self._fieldName]
+        except:
+            return self._get_param_annotation(func)
     
-    def _check_args(self, args: Iterable, kwargs: Mapping[str, Any], attr_type: type | UnionType | None):
+    def _get_param_annotation(self, func: Callable) -> type | UnionType:
+        try:
+            # В первую очередь смотрим на переданные аннотации в параметрах декоратора
+            assert self._annotationType is not None
+            return self._annotationType
+                
+        except AssertionError:
+            return self._get_func_annotation(func)
+    
+    def _get_func_annotation(self, func: Callable):
+        # если не найдено то смотрим в аннотациях метода
+        try:
+            # Пытаемся взять все существующие аннотации параметров функции
+            annotations: dict[str, type | UnionType] = getattr(func, "__annotations__")
+            
+            assert len(annotations) > 0
+            assert annotations.get(self._fieldName) is not None
+            
+            return annotations[self._fieldName]
+        
+        except AssertionError:
+            raise Exception("No annotation detected")
+    
+    def _check_args(self, args: Iterable, kwargs: Mapping[str, Any], attr_type: type | UnionType):
         
         if attr_type is not None:
             for arg in args:
@@ -74,16 +82,54 @@ class FieldValidator:
         else:
             raise Exception("Type is none")
     
-    def __call__(self, func):
+    def __call__(self, func: Callable):
         
         def wrapper(cls, *args, **kwargs):
             
             self._create_annotations(cls)
 
-            attr_type = self._get_annotation(cls, self._fieldName)
-            self._set_annotation_to_class(cls, self._fieldName)
+            # Получаем аннотацию для проверки поля класса
+            attr_annotation = self._get_field_annotation(cls, func)
+            
+            self._set_annotation_to_class(cls, attr_annotation)
 
-            self._check_args(args, kwargs, attr_type)
+            self._check_args(args, kwargs, attr_annotation)
             
             return func(cls, *args)
         return wrapper
+
+
+class AutoProperty:
+    def __init__(self, annotationType: type | UnionType | None = None, docstr: str | None = None):
+    
+        self._annotationType = annotationType
+        self.docstr = docstr
+        
+    def _get_docstring(self, func: Callable, attr_type):
+        try:
+            assert self.docstr is not None
+            return self.docstr
+        except AssertionError:
+            try:
+                assert func.__doc__ is not None
+                return func.__doc__
+            except AssertionError:
+                return f"Auto property. Name: {func.__name__}, type: {attr_type}."
+        
+    def __call__(self, func: Callable):
+        varname = "_" + func.__name__[0].lower() + func.__name__[1:]
+        
+        def getter(self):
+                
+            try:
+                return getattr(self, varname)
+            except:
+                warn("Property wasnt properly initialized. The property has default meaning")
+                setattr(self, varname, None)
+                return getattr(self, varname)
+
+        @FieldValidator(varname, self._annotationType)
+        def setter(self, value):
+            setattr(self, varname, value)
+
+        return property(getter, setter, doc=self._get_docstring(func, self._annotationType))
