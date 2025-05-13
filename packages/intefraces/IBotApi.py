@@ -3,7 +3,7 @@ from telebot.async_telebot import AsyncTeleBot # type: ignore
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from typing import Callable, Protocol
+from typing import Awaitable, Callable, Protocol
 
 from packages.intefraces.IBotMaster import IBotMaster
 
@@ -40,5 +40,5 @@ class IBotApi(Protocol):
     def Poll(self) -> None:
         ...
         
-    def AddHandlers(self, handlers: list[Callable]) -> None:
+    def AddHandler(self, handlers: Awaitable) -> None:
         ...

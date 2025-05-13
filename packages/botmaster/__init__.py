@@ -1,45 +1,36 @@
-from telebot.async_telebot import AsyncTeleBot # type: ignore
+from typing import Optional
+from telebot.async_telebot import AsyncTeleBot  # type: ignore
 
-from env import Config
 
-from telebot.states.asyncio.middleware import StateMiddleware # type: ignore
-from telebot import asyncio_filters # type: ignore
-from telebot.asyncio_storage import StateRedisStorage
+from telebot.states.asyncio.middleware import StateMiddleware  # type: ignore
+from telebot import asyncio_filters  # type: ignore
 
-from telebot.types import InlineKeyboardMarkup # type: ignore
+from telebot.types import InlineKeyboardMarkup  # type: ignore
+from autoproperty import AutoProperty
 
-class BotMaster:
-    
-    _bot: AsyncTeleBot
-    
-    @property
-    def Bot(self) -> AsyncTeleBot:
-        return self._bot
-        
-    @Bot.setter
-    def Bot(self, bot: AsyncTeleBot) -> None:
-        if isinstance(bot, AsyncTeleBot):
-            self._bot = bot
-        else:
-            raise Exception("Wrong bot type")
-        
-    
-    def __init__(self, bot: AsyncTeleBot | None) -> None:
-        self._bot: AsyncTeleBot = bot if bot is not None else AsyncTeleBot(Config.GetValue("TOKEN"), state_storage=StateRedisStorage())
-    
+
+class BotMaster():
+
+    def __init__(self, bot: AsyncTeleBot) -> None:
+        self.Bot = bot
+
+    @AutoProperty[AsyncTeleBot](annotationType=AsyncTeleBot, access_mod="public", s_access_mod="private")
+    def Bot(self): ...
+
     async def Poll(self) -> None:
+
         # включаем какую то штуку
-        self._bot.setup_middleware(StateMiddleware(self._bot))
-        
+        self.Bot.setup_middleware(StateMiddleware(self.Bot))
         # добавляем кастомные фильтры для цифр и для того чтобы работали "состояния пользователей"
-        self._bot.add_custom_filter(asyncio_filters.StateFilter(self._bot))
-        self._bot.add_custom_filter(asyncio_filters.IsDigitFilter())
-        
+        self.Bot.add_custom_filter(asyncio_filters.StateFilter(self.Bot))
+        self.Bot.add_custom_filter(asyncio_filters.IsDigitFilter())
+
         # запускаем поллинг
-        await self._bot.polling()
-    
-    async def SendMessage(self, user_id: int, message: str, reply_markup: InlineKeyboardMarkup | None) -> None:
+        await self.Bot.polling()
+
+    async def SendMessage(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup]) -> None:
+
         if reply_markup is not None:
-            await self._bot.send_message(user_id, message, reply_markup=reply_markup)
+            await self.Bot.send_message(user_id, message, reply_markup=reply_markup)
         else:
-            await self._bot.send_message(user_id, message)
+            await self.Bot.send_message(user_id, message)
