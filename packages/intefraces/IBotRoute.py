@@ -1,6 +1,6 @@
 
 
-from typing import Iterable, Protocol, Optional, Union, Callable
+from typing import Any, Awaitable, Iterable, Protocol, Optional, Union, Callable, runtime_checkable
 
 from telebot.types import Message, ReplyKeyboardMarkup, InlineKeyboardMarkup
 
@@ -16,7 +16,7 @@ import telebot
 
 from packages.intefraces.IStateController import IStateController
 
-
+@runtime_checkable
 class IBotApiRoute(Protocol):
 
     # Fields that is empty on default and filling only when handler got triggered
@@ -117,8 +117,8 @@ class IBotApiRoute(Protocol):
     def UserId(self, user_id: str) -> None:
         ...
 
-    async def __call__(self, message: telebot.types.Message, state: StateContext, bot: AsyncTeleBot):
-        ...
+    def __await__(self, message: telebot.types.Message, state: StateContext, bot: AsyncTeleBot):
+        yield self.__call__(message, state, bot)
 
-    async def Endpoint(self) -> None:
+    def __call__(self, message: telebot.types.Message, state: StateContext, bot: AsyncTeleBot) -> Awaitable:
         ...

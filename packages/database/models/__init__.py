@@ -21,7 +21,7 @@ class Users(Base):
     PhoneNumber = Column(VARCHAR(11), nullable=True)
     TelegramId = Column(BIGINT, nullable=False)
     IsVip = Column(BOOLEAN, nullable=False)
-    role = Column(UUID(as_uuid=True), ForeignKey("roles.RoleId"), nullable=False)
+    RoleId = Column(UUID(as_uuid=True), ForeignKey("roles.RoleId"), nullable=False)
     
     _roles = relationship("Roles", back_populates="_users")
     _subscription_history = relationship("SubscriptionHistory", back_populates="_subscriptions")

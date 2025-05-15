@@ -55,12 +55,9 @@ class BaseBotRoute:
     @AutoProperty[str](annotationType=str)
     def UserId(self) -> str: ...
 
-    async def __call__(self, message: telebot.types.Message, state: StateContext, bot: AsyncTeleBot):
+    async def __call__(self, message: telebot.types.Message, state: StateContext, bot: AsyncTeleBot) -> None:
         self.Botmas = BotMaster(bot)
         self.UsersMessage = message
         self.StateControl = StateController(state)
         if self.UsersMessage is not None:
-            self._user_id: str = str(self.UsersMessage.chat)
-
-    async def Endpoint(self) -> None:
-        raise NotImplementedError()
+            self._user_id: str = str(self.UsersMessage.chat) # type: ignore

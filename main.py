@@ -1,4 +1,4 @@
-from packages.botapi.BotRoute import BaseBotRoute
+from packages.botapi.BaseRoute import BaseBotRoute
 
 
 g = BaseBotRoute()
