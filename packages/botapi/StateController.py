@@ -20,7 +20,6 @@ class StateController:
         await self.__contextState.add_data(**kwargs)
 
     async def GetDataState(self) -> dict:
-        
         async with self.__contextState.data() as data:  # type: ignore
             return data
 

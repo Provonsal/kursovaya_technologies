@@ -17,13 +17,9 @@ from packages.intefraces.IBotMaster import IBotMaster
 
 class BotApi:
     
-    __bot: AsyncTeleBot
     __botMaster: IBotMaster
     __session: _AsyncGeneratorContextManager
     __handlers: list[IBotRoute.IBotApiRoute]
-        
-    @AutoProperty[AsyncTeleBot](access_mod=AutoPropAccessMod.Public, s_access_mod=AutoPropAccessMod.Protected)
-    def Bot(self): ...
     
     @AutoProperty[IBotMaster](access_mod=AutoPropAccessMod.Public, s_access_mod=AutoPropAccessMod.Protected)
     def BotMaster(self): ...
@@ -44,10 +40,12 @@ class BotApi:
             for i in handler:
                 if isinstance(i, IBotRoute.IBotApiRoute):
                     self.AddHandler(i)
+                    self.__handlers.append(i)
                 else:
                     raise TypeError()
         elif isinstance(handler, IBotRoute.IBotApiRoute):
             self.AddHandler(handler)
+            self.__handlers.append(handler)
         else:
             raise TypeError()
         return self
@@ -56,7 +54,7 @@ class BotApi:
         asyncio.run(self.BotMaster.Poll())
         
     def AddHandler(self, handler: IBotRoute.IBotApiRoute) -> None:
-        self.Bot.register_message_handler(
+        self.BotMaster.Bot.register_message_handler(
             handler, # type: ignore
             handler.ContentTypes,
             handler.Commands,
@@ -66,6 +64,5 @@ class BotApi:
         )
         
     def __init__(self, bot: AsyncTeleBot, botmas: IBotMaster | None, session_maker: _AsyncGeneratorContextManager) -> None:
-        self.Bot = bot
         self.BotMaster = botmas if botmas is not None else BotMaster(bot)
         self.Session = session_maker

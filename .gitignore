@@ -601,3 +601,6 @@ FodyWeavers.xsd
 # Additional files built by Visual Studio
 
 # End of https://www.toptal.com/developers/gitignore/api/visualstudio,visualstudiocode,python,dotenv,venv
+docs/.$Диаграмма сценариев мое.drawio.bkp
+docs/.$Диаграмма Классов.drawio.bkp
+docs/.$Диаграмма базы данных.drawio.bkp

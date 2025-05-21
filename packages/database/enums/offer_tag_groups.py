@@ -1,0 +1,27 @@
+from enum import Enum, auto
+
+
+class OfferTagGroupEnum(str, Enum):
+    Accessories = auto()
+    Armor = auto()
+    Artifact = auto()
+    City_Resources = auto()
+    Consumable = auto()
+    Farmable = auto()
+    Furniture = auto()
+    Gathering_Gear = auto()
+    Laborers = auto()
+    Luxury_Goods = auto()
+    Magic = auto()
+    Materials = auto()
+    Melee = auto()
+    Mount = auto()
+    Off_Hand = auto()
+    Other = auto()
+    Product = auto()
+    Ranged = auto()
+    Resource = auto()
+    Tomes = auto()
+    Token = auto()
+    Tool = auto()
+    Trophies = auto()

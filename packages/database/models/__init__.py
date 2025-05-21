@@ -1,9 +1,14 @@
+import enum
 from uuid import uuid4
-from sqlalchemy import BIGINT, BOOLEAN, DATE, INTEGER, VARCHAR, TEXT, Column, ForeignKey
+from sqlalchemy import BIGINT, BOOLEAN, DATE, INTEGER, VARCHAR, TEXT, Column, Enum, ForeignKey
 from .base import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
+
+############################################
+#                   Users                  #
+############################################
 
 class Roles(Base):
     __tablename__ = "roles"
@@ -27,6 +32,10 @@ class Users(Base):
     _subscription_history = relationship("SubscriptionHistory", back_populates="_subscriptions")
     _messages = relationship("Messages", "_users")
     _offers = relationship("Offers", back_populates="_users")
+    
+############################################
+#              Subscriptions               #
+############################################
     
 class SubscriptionTypes(Base):
     __tablename__ = "subscription_types"
@@ -58,8 +67,9 @@ class SubscriptionHistory(Base):
     _users = relationship("Users", back_populates="_subscription_history")
     _subscriptions = relationship("Subscriptions", back_populates="")
     
-    
-    
+############################################
+#       Subscription properties            #
+############################################   
     
 class PaymentStatuses(Base):
     __tablename__ = "payment_statuses"
@@ -78,6 +88,10 @@ class SubscriptionStatuses(Base):
     
     _payment_statuses = relationship("PaymentStatuses", back_populates="_subscription_statuses")
     
+############################################
+#                Messages                  #
+############################################
+    
 class Messages(Base):
     __tablename__ = "messages"
     
@@ -87,7 +101,11 @@ class Messages(Base):
     MessageText = Column(TEXT, nullable=False)
     
     _users = relationship("Users", back_populates="_messages")
-    
+
+############################################
+#             Offer itself                 #
+############################################
+
 class Offers(Base):
     __tablename__ = "offers"
     
@@ -103,6 +121,11 @@ class Offers(Base):
     
     _users = relationship("Users", back_populates="_offers")
     _offers_tags = relationship("Offers_Tags", back_populates="_offers")
+    _offers_qualities = relationship("Offers_Qualities", back_populates="_offers")
+
+############################################
+#           Offer properties               #
+############################################
 
 class OfferTagGroups(Base):
     __tablename__ = "offer_tag_groups"
@@ -122,6 +145,27 @@ class OfferTags(Base):
     
     _offer_tag_groups = relationship("OfferTagGroups", back_populates="_offer_tags")
     
+class OfferTiers(Base):
+    __tablename__ = "offer_tier"
+    
+    TierId = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
+    TierName = Column(VARCHAR(5), nullable=False)
+    TierLevel = Column(Enum(enum.Enum("TierLevel", [("first", 1),("second", 2),("third", 3),("fourth", 4),])), nullable=True)
+    
+    _offers_tiers = relationship("Offers_Tiers", back_populates="_tiers")
+    
+class OfferQuality(Base):
+    __tablename__ = "offer_quality"
+    
+    QualityId = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
+    QualityName = Column(UUID(as_uuid=True), nullable=False)
+    
+    _offers_qualities = relationship("Offers_Qualities", back_populates="_quality")
+    
+############################################   
+#         ManyToMany connections           #
+############################################
+    
 class Offers_Tags(Base):
     __tablename__ = "offers_tags"
     
@@ -131,4 +175,22 @@ class Offers_Tags(Base):
     
     _offer_tags = relationship("OfferTags", back_populates="_offer_tag_groups")
     _offers = relationship("Offers", back_populates="_offers_tags")
-    _group_tags = relationship("OfferTagGroup", back_populates="_offers_tags")
+    _group_tags = relationship("OfferTagGroups", back_populates="_offers_tags")
+    
+class Offers_Qualities(Base):
+    __tablename__ = "offers_qualities"
+    
+    OfferId = Column(UUID(as_uuid=True), ForeignKey("offers.OfferId"), primary_key=True)
+    QualityId = Column(UUID(as_uuid=True), ForeignKey("offer_quality.QualityId"))
+    
+    _quality = relationship("OfferQuality", back_populates="_offers_qualities")
+    _offers = relationship("Offers", back_populates="_offers_tags")
+    
+class Offers_Tiers(Base):
+    __tablename__ = "offers_tiers"
+    
+    OfferId = Column(UUID(as_uuid=True), ForeignKey("offers.OfferId"), primary_key=True)
+    TierId = Column(UUID(as_uuid=True), ForeignKey("offer_tier.TierId"), primary_key=True)
+    
+    _offers = relationship("Offers", back_populates="_offers_tags")
+    _tiers = relationship("OfferTiers", back_populates="_offers_tiers")

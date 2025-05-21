@@ -40,6 +40,8 @@ class Offer(BaseSchema):
     @AutoProperty[bool](access_mod=AutoPropAccessMod.Public)
     def Active(self, v: bool): ...
     
+    
+    
     def to_dict(self) -> dict:
         return {
             "OfferId": self.OfferId,
@@ -137,4 +139,8 @@ class Offer(BaseSchema):
                 await s.execute(insert(models.Offers).values(updict))
         else:
             raise AttributeError()
+        
+    async def get_tags(self):
+        ...
+        
         
