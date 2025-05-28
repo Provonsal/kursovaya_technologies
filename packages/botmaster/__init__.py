@@ -5,8 +5,10 @@ from telebot.async_telebot import AsyncTeleBot  # type: ignore
 from telebot.states.asyncio.middleware import StateMiddleware  # type: ignore
 from telebot import asyncio_filters  # type: ignore
 
-from telebot.types import InlineKeyboardMarkup  # type: ignore
+from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup  # type: ignore
 from autoproperty import AutoProperty
+
+from packages.database import init_db
 
 
 class BotMaster():
@@ -19,6 +21,8 @@ class BotMaster():
 
     async def Poll(self) -> None:
 
+        await init_db()
+
         # включаем какую то штуку
         self.Bot.setup_middleware(StateMiddleware(self.Bot))
         # добавляем кастомные фильтры для цифр и для того чтобы работали "состояния пользователей"
@@ -28,9 +32,10 @@ class BotMaster():
         # запускаем поллинг
         await self.Bot.polling()
 
-    async def SendMessage(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup]) -> None:
+    async def SendMessage(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup | ReplyKeyboardMarkup]) -> None:
 
-        if reply_markup is not None:
-            await self.Bot.send_message(user_id, message, reply_markup=reply_markup)
-        else:
-            await self.Bot.send_message(user_id, message)
+        await self.Bot.send_message(user_id, message, reply_markup=reply_markup)
+        
+            
+    async def EditMessage(self, text: str, user_id: int, message_id: int, reply_markup: Optional[InlineKeyboardMarkup]) -> None:
+        await self.Bot.edit_message_text(text, user_id, message_id, reply_markup=reply_markup)

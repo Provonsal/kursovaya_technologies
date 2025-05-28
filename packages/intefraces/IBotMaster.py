@@ -1,4 +1,4 @@
-from telebot.types import InlineKeyboardMarkup # type: ignore
+from telebot.types import InlineKeyboardMarkup, ReplyKeyboardMarkup # type: ignore
 from telebot.async_telebot import AsyncTeleBot # type: ignore
 
 from typing import Optional, Protocol, runtime_checkable
@@ -17,6 +17,6 @@ class IBotMaster(Protocol):
     async def Poll(self) -> None:
         ...
     
-    async def SendMessage(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup]) -> None:
+    async def SendMessage(self, user_id: int, message: str, reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | None) -> None:
         ...
     

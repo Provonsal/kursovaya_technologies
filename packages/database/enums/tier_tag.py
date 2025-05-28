@@ -9,9 +9,9 @@ class OfferTier(Enum):
     T1 = None
     T2 = None
     T3 = None
-    T4 = TIER_LEVELS
-    T5 = TIER_LEVELS
-    T6 = TIER_LEVELS
-    T7 = TIER_LEVELS
-    T8 = TIER_LEVELS
+    T4 = (0, 1, 2, 3, 4)
+    T5 = (0, 1, 2, 3, 4)
+    T6 = (0, 1, 2, 3, 4)
+    T7 = (0, 1, 2, 3, 4)
+    T8 = (0, 1, 2, 3, 4)
     

@@ -34,10 +34,10 @@ class ReplyKeyboard:
         
         return
 
-    @AutoProperty[ReplyKeyboardMarkup](annotationType=ReplyKeyboardMarkup, access_mod="public", s_access_mod="private")
+    @AutoProperty[ReplyKeyboardMarkup](annotationType=ReplyKeyboardMarkup, access_mod="public", s_access_mod="protected")
     def Keyboard(self): ...
 
-    @AutoProperty[list[KeyboardButton | list[KeyboardButton]]](annotationType=list[KeyboardButton | list[KeyboardButton]], access_mod="public", s_access_mod="private")
+    @AutoProperty[list[KeyboardButton | list[KeyboardButton]]](annotationType=list[KeyboardButton | list[KeyboardButton]], access_mod="public", s_access_mod="protected")
     def ButtonsCollection(self): ...
 
     # operator +=
@@ -71,43 +71,42 @@ class ReplyKeyboard:
     
 class InlineKeyboard:
     
-    _keyboard: InlineKeyboardMarkup
-    _buttonsCollection: Iterable[InlineKeyboardButton]
+    __keyboard: InlineKeyboardMarkup
+    __buttonsCollection: list
     
-    @property
-    def Keyboard(self) -> InlineKeyboardMarkup:
-        return self._keyboard
-        
-    @Keyboard.setter
-    def Keyboard(self, keyboard: InlineKeyboardMarkup):
-        if isinstance(keyboard, InlineKeyboardMarkup):
-            self._keyboard = keyboard
-        else:
-            raise Exception()
+    def __init__(self, row_width: int = 1) -> None:
+        self.Keyboard = InlineKeyboardMarkup(row_width=row_width)
+        self.ButtonsCollection = []
+    
+    @AutoProperty[InlineKeyboardMarkup](access_mod='public')
+    def Keyboard(self, v: InlineKeyboardMarkup): ...
+    
+    @AutoProperty[list[InlineKeyboardButton | list[InlineKeyboardButton]]](access_mod="public", s_access_mod="protected")
+    def ButtonsCollection(self, v: list): ...
     
     # operator +=
-    def __iadd__(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> "IInlineKeyboard":
-        self.AddButtons(buttons)
+    def __iadd__(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> "InlineKeyboard":
+        self.add_buttons(buttons)
         return self
 
     # operator *=
-    def __imul__(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> "IInlineKeyboard":
-        self.AddRow(buttons)
+    def __imul__(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> "InlineKeyboard":
+        self.add_row(buttons)
         return self
 
     # public 
-    def AddButtons(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> None:
+    def add_buttons(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> None:
         if isinstance(buttons, Iterable):
-            self._keyboard.add(*buttons)
-        elif isinstance(buttons, KeyboardButton):
-            self._keyboard.add(buttons)
+            self.Keyboard.add(*buttons)
+        elif isinstance(buttons, InlineKeyboardButton):
+            self.Keyboard.add(buttons)
         else:
-            raise Exception()
+            raise TypeError()
     
-    def AddRow(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> None:
+    def add_row(self, buttons: Iterable[InlineKeyboardButton] | InlineKeyboardButton) -> None:
         if isinstance(buttons, Iterable):
-            self._keyboard.row(*buttons)
-        elif isinstance(buttons, KeyboardButton):
-            self._keyboard.row(buttons)
+            self.Keyboard.row(*buttons)
+        elif isinstance(buttons, InlineKeyboardButton):
+            self.Keyboard.row(buttons)
         else:
-            raise Exception()
+            raise TypeError()
