@@ -1,5 +1,5 @@
 from uuid import uuid4
-from sqlalchemy import ARRAY, BIGINT, BOOLEAN, DATE, INTEGER, VARCHAR, TEXT, Column, Enum, ForeignKey
+from sqlalchemy import ARRAY, BIGINT, BOOLEAN, DATE, FLOAT, INTEGER, VARCHAR, TEXT, Column, Enum, ForeignKey
 
 from packages.database.enums.offer_tag_groups import OfferTagGroupEnum
 from packages.database.enums.offer_tag_names import OfferTagNamesEnum
@@ -156,7 +156,7 @@ class OfferTiers(Base):
     
     TierId = Column(UUID(as_uuid=True), primary_key=True, default=uuid4())
     TierName = Column(VARCHAR(5), nullable=False)
-    TierLevels = Column(ARRAY(INTEGER), nullable=True)
+    TierLevels = Column(FLOAT, nullable=True)
     
     _offers_tiers = relationship("Offers_Tiers", back_populates="_tiers")
     

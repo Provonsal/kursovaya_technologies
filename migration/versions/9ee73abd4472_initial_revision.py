@@ -1,8 +1,8 @@
 """Initial revision
 
-Revision ID: 1ece9856443c
+Revision ID: 9ee73abd4472
 Revises: 
-Create Date: 2025-05-27 19:44:55.253395
+Create Date: 2025-05-28 13:47:53.891612
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '1ece9856443c'
+revision: str = '9ee73abd4472'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -34,7 +34,7 @@ def upgrade() -> None:
     op.create_table('offer_tiers',
     sa.Column('TierId', sa.UUID(), nullable=False),
     sa.Column('TierName', sa.VARCHAR(length=5), nullable=False),
-    sa.Column('TierLevels', sa.ARRAY(sa.INTEGER()), nullable=True),
+    sa.Column('TierLevels', sa.FLOAT(), nullable=True),
     sa.PrimaryKeyConstraint('TierId')
     )
     op.create_table('payment_statuses',
@@ -76,7 +76,8 @@ def upgrade() -> None:
     sa.Column('IsVip', sa.BOOLEAN(), nullable=False),
     sa.Column('RoleId', sa.UUID(), nullable=False),
     sa.ForeignKeyConstraint(['RoleId'], ['roles.RoleId'], ),
-    sa.PrimaryKeyConstraint('UserId')
+    sa.PrimaryKeyConstraint('UserId'),
+    sa.UniqueConstraint('TelegramId')
     )
     op.create_table('messages',
     sa.Column('MessageId', sa.UUID(), nullable=False),

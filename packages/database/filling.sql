@@ -26,8 +26,6 @@ declare
     group22 uuid = uuid_generate_v4();
     group23 uuid = uuid_generate_v4();
 
-    levels integer[] = '{0, 1, 2, 3, 4}';
-
 begin
 	INSERT INTO offer_tag_groups
 	VALUES
@@ -217,11 +215,31 @@ begin
     (uuid_generate_v4(), 'T1', null),
     (uuid_generate_v4(), 'T2', null),
     (uuid_generate_v4(), 'T3', null),
-    (uuid_generate_v4(), 'T4', levels),
-    (uuid_generate_v4(), 'T5', levels),
-    (uuid_generate_v4(), 'T6', levels),
-    (uuid_generate_v4(), 'T7', levels),
-    (uuid_generate_v4(), 'T8', levels);
+    (uuid_generate_v4(), 'T4', 4.0),
+	(uuid_generate_v4(), 'T4.1', 4.1),
+	(uuid_generate_v4(), 'T4.2', 4.2),
+	(uuid_generate_v4(), 'T4.3', 4.3),
+	(uuid_generate_v4(), 'T4.4', 4.4),
+    (uuid_generate_v4(), 'T5', 5.0),
+	(uuid_generate_v4(), 'T5.1', 5.1),
+	(uuid_generate_v4(), 'T5.2', 5.2),
+	(uuid_generate_v4(), 'T5.3', 5.3),
+	(uuid_generate_v4(), 'T5.4', 5.4),
+    (uuid_generate_v4(), 'T6', 6.0),
+	(uuid_generate_v4(), 'T6.1', 6.1),
+	(uuid_generate_v4(), 'T6.2', 6.2),
+	(uuid_generate_v4(), 'T6.3', 6.3),
+	(uuid_generate_v4(), 'T6.4', 6.4),
+    (uuid_generate_v4(), 'T7', 7.0),
+	(uuid_generate_v4(), 'T7.1', 7.1),
+	(uuid_generate_v4(), 'T7.2', 7.2),
+	(uuid_generate_v4(), 'T7.3', 7.3),
+	(uuid_generate_v4(), 'T7.4', 7.4),
+    (uuid_generate_v4(), 'T8', 8.0),
+	(uuid_generate_v4(), 'T8.1', 8.1),
+	(uuid_generate_v4(), 'T8.2', 8.2),
+	(uuid_generate_v4(), 'T8.3', 8.3),
+	(uuid_generate_v4(), 'T8.4', 8.4);
     
     INSERT INTO roles
     VALUES

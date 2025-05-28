@@ -37,9 +37,9 @@ class CB_Profile(CallbackApiRoute):
             
             self.bot_message = "\n".join((name_line, lastname_line, id_line, subscription_line, role_line, phone_line))
             
-            await self.Botmas.EditMessage(self.bot_message, self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
+            await self.Botmas.edit_message(self.bot_message, self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
         else:
-            await self.Botmas.EditMessage("Извините, информация о вас не найдена. Пожалуйста обратитесь к администратору:\n@Provonsal", self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
+            await self.Botmas.edit_message("Извините, информация о вас не найдена. Пожалуйста обратитесь к администратору:\n@Provonsal", self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
             
         
         

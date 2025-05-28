@@ -24,12 +24,11 @@ from packages.intefraces.IBotMaster import IBotMaster
 
 class BotApi:
     
-    _botMaster: IBotMaster
     __session: _AsyncGeneratorContextManager[AsyncSession]
     __handlers: list
     
-    @AutoProperty[IBotMaster](access_mod=AutoPropAccessMod.Public, s_access_mod=AutoPropAccessMod.Protected)
-    def BotMaster(self, v: IBotMaster): ...
+    @AutoProperty[BotMaster](access_mod=AutoPropAccessMod.Public, s_access_mod=AutoPropAccessMod.Protected)
+    def Botmas(self, v: BotMaster): ...
     
     # @AutoProperty[_AsyncGeneratorContextManager[AsyncSession]](access_mod=AutoPropAccessMod.Public, s_access_mod=AutoPropAccessMod.Protected)
     # def Session(self): ...
@@ -81,10 +80,10 @@ class BotApi:
         return self
     
     def Poll(self) -> None:
-        asyncio.run(self.BotMaster.Poll(), debug=bool(int(Config.GetValue("ASYNC_DEBUG"))))
+        asyncio.run(self.Botmas.Poll(), debug=bool(int(Config.GetValue("ASYNC_DEBUG"))))
         
     def AddHandler(self, handler: BaseBotRoute) -> None:
-        self.BotMaster.Bot.register_message_handler(
+        self.Botmas.Bot.register_message_handler(
             handler, # type: ignore
             handler.ContentTypes,
             handler.Commands,
@@ -95,12 +94,12 @@ class BotApi:
         )
         
     def AddCallBackHandler(self, handler: CallbackApiRoute):
-        self.BotMaster.Bot.register_callback_query_handler(
+        self.Botmas.Bot.register_callback_query_handler(
             handler, # type: ignore
             handler.Func,
             pass_bot=True
         )
         
-    def __init__(self, bot: AsyncTeleBot, botmas: IBotMaster | None = None) -> None:
-        self.BotMaster = botmas if botmas is not None else BotMaster(bot)
+    def __init__(self, bot: AsyncTeleBot, botmas: BotMaster | None = None) -> None:
+        self.Botmas = botmas if botmas is not None else BotMaster(bot)
         self.__handlers = []

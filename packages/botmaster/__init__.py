@@ -1,3 +1,5 @@
+from io import BufferedReader
+from logging import BufferingFormatter
 from typing import Optional
 from telebot.async_telebot import AsyncTeleBot  # type: ignore
 
@@ -32,10 +34,13 @@ class BotMaster():
         # запускаем поллинг
         await self.Bot.polling()
 
-    async def SendMessage(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup | ReplyKeyboardMarkup]) -> None:
+    async def send_message(self, user_id: int, message: str, reply_markup: Optional[InlineKeyboardMarkup | ReplyKeyboardMarkup] = None) -> None:
 
         await self.Bot.send_message(user_id, message, reply_markup=reply_markup)
         
             
-    async def EditMessage(self, text: str, user_id: int, message_id: int, reply_markup: Optional[InlineKeyboardMarkup]) -> None:
+    async def edit_message(self, text: str, user_id: int, message_id: int, reply_markup: Optional[InlineKeyboardMarkup] = None) -> None:
         await self.Bot.edit_message_text(text, user_id, message_id, reply_markup=reply_markup)
+        
+    async def send_photo(self, user_id: int, photo: BufferedReader, caption: str, reply_markup: Optional[InlineKeyboardMarkup | ReplyKeyboardMarkup] = None):
+        await self.Bot.send_photo(user_id, photo, caption, reply_markup=reply_markup)

@@ -1,4 +1,5 @@
 
+import os
 from typing import cast
 from uuid import uuid4
 from telebot.async_telebot import AsyncTeleBot
@@ -31,9 +32,18 @@ class API_Mainmenu(BaseBotRoute):
     async def __call__(self, message: Message, state: StateContext, bot: AsyncTeleBot) -> None:
         await super().__call__(message, state, bot)
         await self.StateControl.ResetStates()
-        await self.Botmas.SendMessage(self.UserId, self.bot_message, self.Keyboard)
+        await self.Botmas.send_message(self.UserId, self.bot_message, self.Keyboard)
+        
         user = User(user_id=uuid4(), telegram_id=self.UserId)
+        
         await user.create(self.Session)
+        
+        user = await User.get_by_telegramId(self.Session, self.UserId)
+        if user is not None:
+            user_personaly_path = f"./users_offers/{user.UserId}/offer/"
+            if not os.path.exists(user_personaly_path):
+                os.mkdir(f"./users_offers/{user.UserId}/")
+                os.mkdir(user_personaly_path)
     
 class CB_MainMenu(CallbackApiRoute):
     def __init__(self) -> None:
@@ -57,6 +67,16 @@ class CB_MainMenu(CallbackApiRoute):
         await super().__call__(message, state, bot)
         self.Callback.data
         await self.StateControl.ResetStates()
-        await self.Botmas.EditMessage(self.bot_message, self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
+        await self.Botmas.edit_message(self.bot_message, self.UserId, self.UserMessage.message_id, cast(InlineKeyboardMarkup, self.Keyboard))
+        
         user = User(user_id=uuid4(), telegram_id=self.UserId)
+        
         await user.create(self.Session)
+        
+        user = await User.get_by_telegramId(self.Session, self.UserId)
+        
+        if user is not None:
+            user_personaly_path = f"./users_offers/{user.UserId}/offer/"
+            if not os.path.exists(user_personaly_path):
+                os.mkdir(f"./users_offers/{user.UserId}/")
+                os.mkdir(user_personaly_path)
